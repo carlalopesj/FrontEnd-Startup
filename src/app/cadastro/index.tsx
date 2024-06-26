@@ -12,7 +12,7 @@ export default function Index() {
 
   // Hooks UseState
   const [nome, setNome] = useState('');
-  const [matricula, setMatricula] = useState('');
+  const [cpf, setCpf] = useState('');
   const [idade, setIdade] = useState('');
   const [genero, setGenero] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -27,7 +27,7 @@ export default function Index() {
 
   // Função para quando o botão cadastrar for acionado
   const handleSubmit = async () => {
-    if (!nome || !matricula || !idade || !genero) { // Caso os campos estejam vazios
+    if (!nome || !cpf || !idade || !genero) { // Caso os campos estejam vazios
       Alert.alert("Erro", "Por favor, preencha todos os campos.");
       return;
     }
@@ -41,7 +41,7 @@ export default function Index() {
         // Passando os dados
         body: JSON.stringify({
           nome: nome,
-          matricula: matricula,
+          cpf: cpf,
           idade: idade,
           sexo: genero,
         }),
@@ -51,7 +51,7 @@ export default function Index() {
         // Se a resposta estiver OK, podemos prosseguir com a navegação ou outra ação necessária
         Alert.alert('Sucesso', 'Paciente cadastrado com sucesso!');
         setNome('');
-        setMatricula('');
+        setCpf('');
         setIdade('');
         setGenero('');
         router.replace('/'); // Volta para a página Home no index
@@ -75,7 +75,7 @@ export default function Index() {
     return <View><CustomText>Carregando...</CustomText></View>;
   }
 
-  const CPF_MASK = [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/]; // Modelo para o matricula
+  const CPF_MASK = [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/]; // Modelo para o cpf
 
   const openModal = () => {
     Keyboard.dismiss(); // Fechar o teclado antes de abrir o modal
@@ -106,17 +106,19 @@ export default function Index() {
           </View>
 
           <View style={styles.inputContainer}>
-            <CustomText style={styles.text}>MATRÍCULA:</CustomText>
+            <CustomText style={styles.textMatricula}>MATRÍCULA:</CustomText>
+
             <MaskInput
               keyboardType='numeric'
               placeholder='000.000.000-00'
               style={styles.input}
-              value={matricula}
+              value={cpf}
               onChangeText={(masked, unmasked) => {
-                setMatricula(masked); // store masked value in state
+                setCpf(masked); // store masked value in state
               }}
               mask={CPF_MASK}
             />
+                     
           </View>
 
           <View style={styles.inputContainer}>

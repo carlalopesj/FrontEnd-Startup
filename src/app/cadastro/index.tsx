@@ -75,7 +75,7 @@ export default function Index() {
     return <View><CustomText>Carregando...</CustomText></View>;
   }
 
-  const CPF_MASK = [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/]; // Modelo para o cpf
+  //const CPF_MASK = [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/]; // Modelo para o cpf
 
   const openModal = () => {
     Keyboard.dismiss(); // Fechar o teclado antes de abrir o modal
@@ -110,13 +110,13 @@ export default function Index() {
 
             <MaskInput
               keyboardType='numeric'
-              placeholder='000.000.000-00'
+              placeholder=''
               style={styles.input}
               value={cpf}
               onChangeText={(masked, unmasked) => {
                 setCpf(masked); // store masked value in state
               }}
-              mask={CPF_MASK}
+              //mask={CPF_MASK}
             />
                      
           </View>

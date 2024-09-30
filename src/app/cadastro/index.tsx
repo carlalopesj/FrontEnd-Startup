@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Modal, StatusBar, Alert, Keyboard } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFonts, LilitaOne_400Regular } from '@expo-google-fonts/lilita-one';
-import MaskInput from 'react-native-mask-input';
 import CustomText from '../components/CustomText';
-import Body from '../components/Body';
+import Background from '../components/Background';
 import { styles } from './styles';
 
 export default function Index() {
@@ -13,6 +12,7 @@ export default function Index() {
   // Hooks UseState
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
+  const [matricula, setMatricula] = useState('');
   const [idade, setIdade] = useState('');
   const [genero, setGenero] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -25,38 +25,60 @@ export default function Index() {
     { id: 4, texto: 'Voltar' },
   ];
 
+  // Função para aplicar a máscara de CPF
+  const aplicarMascaraCpf = (value: string) => {
+    // Remove tudo que não é número
+    value = value.replace(/\D/g, '');
+
+    // Aplica a máscara CPF: 000.000.000-00
+    if (value.length <= 11) {
+      value = value.replace(/(\d{3})(\d)/, '$1.$2');
+      value = value.replace(/(\d{3})(\d)/, '$1.$2');
+      value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+
+    return value;
+  };
+
   // Função para quando o botão cadastrar for acionado
   const handleSubmit = async () => {
-    if (!nome || !cpf || !idade || !genero) { // Caso os campos estejam vazios
+    if (!nome || !cpf || !matricula || !idade || !genero) {
       Alert.alert("Erro", "Por favor, preencha todos os campos.");
       return;
     }
 
     try {
-      const response = await fetch('https://bakcend-deploy.vercel.app/addpaciente', { // Fazendo a conexão com o BackEnd. *Alterar o IP de acordo com o da sua máquina
+      const response = await fetch('https://bakcend-deploy.vercel.app/addpaciente', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // Passando os dados
         body: JSON.stringify({
-          nome: nome,
-          cpf: cpf,
-          idade: idade,
+          nome,
+          cpf,
+          matricula,
+          idade,
           sexo: genero,
         }),
       });
 
       if (response.ok) {
-        // Se a resposta estiver OK, podemos prosseguir com a navegação ou outra ação necessária
         Alert.alert('Sucesso', 'Paciente cadastrado com sucesso!');
         setNome('');
         setCpf('');
+        setMatricula('');
         setIdade('');
         setGenero('');
-        router.replace('/'); // Volta para a página Home no index
+
+        // Redirecionar para a outra rota com o nome e a matrícula
+        router.push({
+          pathname: '/dentes',
+          params: {
+            nome: nome,
+            codPaciente: matricula, // Aqui você pode passar a matrícula como o código do paciente
+          },
+        });
       } else {
-        // Se houve um erro na requisição, vamos verificar se a resposta não está vazia antes de tentar analisar como JSON
         const responseData = await response.text();
         const errorMessage = responseData || 'Erro ao cadastrar paciente. Por favor, tente novamente.';
         Alert.alert('Erro', errorMessage);
@@ -75,10 +97,8 @@ export default function Index() {
     return <View><CustomText>Carregando...</CustomText></View>;
   }
 
-  //const CPF_MASK = [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/]; // Modelo para o cpf
-
   const openModal = () => {
-    Keyboard.dismiss(); // Fechar o teclado antes de abrir o modal
+    Keyboard.dismiss();
     setModalVisible(true);
   };
 
@@ -89,7 +109,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle={'dark-content'} />
-      <Body />
+      <Background />
       <View style={styles.overlayContent}>
         <TouchableOpacity style={styles.smallSquareButton} onPress={() => router.back()}>
           <CustomText style={styles.smallSquareButtonText}>←</CustomText>
@@ -106,19 +126,29 @@ export default function Index() {
           </View>
 
           <View style={styles.inputContainer}>
-            <CustomText style={styles.textMatricula}>MATRÍCULA:</CustomText>
-
-            <MaskInput
+            <CustomText style={styles.text}>CPF:</CustomText>
+            <TextInput
               keyboardType='numeric'
-              placeholder=''
               style={styles.input}
+              onChangeText={(value) => setCpf(aplicarMascaraCpf(value))}
               value={cpf}
-              onChangeText={(masked, unmasked) => {
-                setCpf(masked); // store masked value in state
-              }}
-              //mask={CPF_MASK}
+              maxLength={14} // Limita a entrada para 14 caracteres (formato: 000.000.000-00)
             />
-                     
+          </View>
+
+          <View style={styles.inputContainer}>
+            <CustomText style={styles.text}>MATRÍCULA:</CustomText>
+            <TextInput
+              keyboardType='numeric'
+              style={styles.input}
+              onChangeText={(value) => {
+                // Limita a entrada para apenas 7 números
+                const formattedValue = value.replace(/\D/g, '').slice(0, 7);
+                setMatricula(formattedValue);
+              }}
+              value={matricula}
+              maxLength={7} // Limita a entrada para 7 caracteres
+            />
           </View>
 
           <View style={styles.inputContainer}>
@@ -137,13 +167,8 @@ export default function Index() {
               <CustomText style={styles.textSelected}>{genero || 'Selecionar'}</CustomText>
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.inputSubmit} onPress={handleSubmit}>
-            <CustomText style={styles.buttonText}>CADASTRAR </CustomText>
-          </TouchableOpacity>
         </View>
 
-        {/* Modal para seleção de gênero */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -173,8 +198,11 @@ export default function Index() {
             </View>
           </TouchableOpacity>
         </Modal>
+
+        <TouchableOpacity style={styles.inputSubmit} onPress={handleSubmit}>
+          <CustomText style={styles.buttonText}>CADASTRAR</CustomText>
+        </TouchableOpacity>
       </View>
     </View>
-
   );
 }

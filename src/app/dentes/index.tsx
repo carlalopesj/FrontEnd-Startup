@@ -10,12 +10,13 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFonts, LilitaOne_400Regular } from "@expo-google-fonts/lilita-one";
 import CustomText from "../components/CustomText";
-import Body from "../components/Body";
+import Background from "../components/Background";
 import { styles } from "./styles";
 
 export default function Index() {
   const router = useRouter();
   const { nome, codPaciente } = useLocalSearchParams();
+
 
   const [opcoesDentes, setOpcoesDentes] = useState([
     { id: 1, dente: "V11", score: null },
@@ -66,7 +67,7 @@ export default function Index() {
       });
 
       if (response.ok) {
-        //Alert.alert('Sucesso', 'Dados dos dentes salvos com sucesso!');
+        // Alert.alert('Sucesso', 'Dados dos dentes salvos com sucesso!');
         salvarMedia(); //Se salvar os dentes, é possível salvar a média também, evitando repetição de código
       } else {
         Alert.alert('Erro', 'Erro ao salvar os dados dos dentes.');
@@ -94,7 +95,7 @@ export default function Index() {
       });
 
       if (response.ok) {
-        //Alert.alert('Sucesso', 'Média das notas salva com sucesso!');
+        //  Alert.alert('Sucesso', 'Média das notas salva com sucesso!');
       } else {
         Alert.alert('Erro', 'Erro ao salvar a média das notas.');
         throw new Error('Erro ao salvar a média das notas');
@@ -115,11 +116,11 @@ export default function Index() {
 
   const navegarParaResultado = () => {
     if (mediaNotas >= 0 && mediaNotas <= 1) {
-      router.push('resultados/resultado');
+      router.push('/resultados/resultado');
     } else if (mediaNotas > 1 && mediaNotas <= 2) {
-      router.push('resultados/resultado1');
+      router.push('/resultados/resultado1');
     } else if (mediaNotas > 2 && mediaNotas <= 3) {
-      router.push('resultados/resultado2');
+      router.push('/resultados/resultado2');
     }
   };
 
@@ -135,12 +136,12 @@ export default function Index() {
     );
   }
 
-  const handleOpenModal = (index:any) => {
+  const handleOpenModal = (index: number) => {
     setSelectedDenteIndex(index);
     setModalVisible(true);
   };
 
-  const handleSelecionarNotaDente = (score:any) => {
+  const handleSelecionarNotaDente = (score: any) => {
     if (selectedDenteIndex !== -1) {
       const novasOpcoesDentes = [...opcoesDentes];
       novasOpcoesDentes[selectedDenteIndex] = {
@@ -155,7 +156,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle={"dark-content"} />
-      <Body />
+      <Background />
       <View style={styles.overlayContent}>
         <TouchableOpacity style={styles.smallSquareButton} onPress={() => router.back()} >
           <CustomText style={styles.smallSquareButtonText}>←</CustomText>
@@ -166,7 +167,7 @@ export default function Index() {
             <CustomText style={styles.input}>{nome}</CustomText>
           </View>
           <View style={styles.inputContainer}>
-            <CustomText style={styles.text}>CÓDIGO:</CustomText>
+            <CustomText style={styles.text}>MATRICULA:</CustomText>
             <CustomText style={styles.input}>{codPaciente}</CustomText>
           </View>
           <CustomText style={styles.title}>DENTES</CustomText>
